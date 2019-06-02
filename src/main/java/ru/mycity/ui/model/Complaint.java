@@ -1,7 +1,5 @@
 package ru.mycity.ui.model;
 
-import java.util.Objects;
-
 public class Complaint {
 
     private String message;

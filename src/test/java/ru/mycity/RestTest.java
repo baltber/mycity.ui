@@ -9,8 +9,8 @@ import java.util.List;
 public class RestTest {
     @Test
     public void test() throws Exception {
-        CoreService coreService = new CoreService();
-        List<ComplaintDto> dtoList = coreService.getComplaints();
-        System.out.println(dtoList.size());
+//        CoreService coreService = new CoreService();
+//        List<ComplaintDto> dtoList = coreService.getComplaints();
+//        System.out.println(dtoList.size());
     }
 }

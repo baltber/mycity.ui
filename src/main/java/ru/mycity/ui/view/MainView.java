@@ -3,9 +3,7 @@ package ru.mycity.ui.view;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -14,10 +12,7 @@ import ru.mycity.ui.model.Complaint;
 import ru.mycity.ui.service.rest.CoreService;
 import ru.mycity.ui.service.rest.dto.ComplaintDto;
 
-import java.sql.SQLOutput;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Route(value = "main")
@@ -25,8 +20,10 @@ public class MainView extends VerticalLayout {
 
     private final Button button;
     private Grid<Complaint> grid;
+    private MainViewParameters parameters;
 
     public MainView() {
+        parameters = new MainViewParameters();
 
         VerticalLayout textLayout = new VerticalLayout();
         H2 label = new H2("Обращения граждан");
@@ -37,27 +34,29 @@ public class MainView extends VerticalLayout {
 
         //List Select
         ComboBox<String> comboBoxCategory = new ComboBox<>("Категория");
-        comboBoxCategory.setItems("Google Chrome", "Mozilla Firefox", "Opera",
-                "Apple Safari", "Microsoft Edge");
+        comboBoxCategory.setItems("Сантехника", "Электричество");
 
         comboBoxCategory.addValueChangeListener(event -> {
             if (event.getSource().isEmpty()) {
                 Notification.show("No browser selected");
+                parameters.setCategory(null);
             } else {
                 Notification.show("Выбрана категория: " + event.getValue());
+                parameters.setCategory(event.getValue());
             }
         });
 
 
         ComboBox<String> comboBoxStatus = new ComboBox<>("Статус");
-        comboBoxStatus.setItems("Google Chrome", "Mozilla Firefox", "Opera",
-                "Apple Safari", "Microsoft Edge");
+        comboBoxStatus.setItems("NEW", "DONE");
 
         comboBoxStatus.addValueChangeListener(event -> {
             if (event.getSource().isEmpty()) {
                 Notification.show("No browser selected");
+                parameters.setCategory(null);
             } else {
                 Notification.show("Выбран статус: " + event.getValue());
+                parameters.setCategory(event.getValue());
             }
         });
 
@@ -81,16 +80,16 @@ public class MainView extends VerticalLayout {
         add(grid);
 
 
-        button.addClickListener(l -> listComplaint());
+        button.addClickListener(l -> listComplaint(parameters));
 
 
     }
 
-    private void listComplaint(){
+    private void listComplaint(MainViewParameters parameters){
         CoreService coreService = new CoreService();
         List<Complaint> list = null;
         try {
-            list = toModel(coreService.getComplaints());
+            list = toModel(coreService.getComplaints(parameters));
         } catch (Exception e) {
             e.printStackTrace();
         }
