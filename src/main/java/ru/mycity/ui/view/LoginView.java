@@ -38,14 +38,6 @@ public class LoginView extends VerticalLayout {
                 login.setError(true);
             }
 
-//
-//            boolean isAuthenticated = true;
-//            if (isAuthenticated) {
-//                System.out.println("LOGIN");
-//                UI.getCurrent().navigate(MainView.class);
-//            } else {
-//                login.setError(true);
-//            }
         });
 
         setHorizontalComponentAlignment(Alignment.CENTER, layout);

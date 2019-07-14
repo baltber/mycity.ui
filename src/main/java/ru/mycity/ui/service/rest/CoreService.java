@@ -6,9 +6,7 @@ import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.mycity.ui.service.rest.dto.AddComplaintDto;
-import ru.mycity.ui.service.rest.dto.ComplaintDto;
-import ru.mycity.ui.service.rest.dto.InsertComplaintResultDto;
+import ru.mycity.ui.service.rest.dto.*;
 import ru.mycity.ui.utils.MarshallerHelper;
 import ru.mycity.ui.view.MainViewParameters;
 
@@ -36,7 +34,7 @@ public class CoreService {
         }
     }
 
-    public InsertComplaintResultDto addComplaint(AddComplaintDto rawdataDto) {
+    public InsertComplaintResultDto addComplaint(AddComplaintDto complaintDto) {
         try {
 
             HttpComponentsClientHttpRequestFactory rf = new HttpComponentsClientHttpRequestFactory();
@@ -48,10 +46,31 @@ public class CoreService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 
-            JsonNode node = new MarshallerHelper<AddComplaintDto>().convertToJson(rawdataDto);
+            JsonNode node = new MarshallerHelper<AddComplaintDto>().convertToJson(complaintDto);
             HttpEntity<String> entity = new HttpEntity<String>(node.toString(), headers);
 
             return restTemplate.postForEntity("http://localhost:9190/complaint/", entity, InsertComplaintResultDto.class).getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public AuthUserResponseDto authUser(AuthUserRequestDto requestDto) {
+        try {
+
+            HttpComponentsClientHttpRequestFactory rf = new HttpComponentsClientHttpRequestFactory();
+            rf.setConnectTimeout(30 * 1000);
+            rf.setConnectionRequestTimeout(30 * 1000);
+            rf.setReadTimeout(60 * 1000);
+            RestTemplate restTemplate = new RestTemplate(rf);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+            JsonNode node = new MarshallerHelper<AuthUserRequestDto>().convertToJson(requestDto);
+            HttpEntity<String> entity = new HttpEntity<String>(node.toString(), headers);
+
+            return restTemplate.postForEntity("http://localhost:9190/auth/", entity, AuthUserResponseDto.class).getBody();
         } catch (Exception e) {
             throw e;
         }
