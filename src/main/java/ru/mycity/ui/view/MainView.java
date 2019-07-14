@@ -1,5 +1,6 @@
 package ru.mycity.ui.view;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -8,6 +9,9 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletRequest;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import ru.mycity.ui.model.Complaint;
 import ru.mycity.ui.service.rest.CoreService;
 import ru.mycity.ui.service.rest.dto.ComplaintDto;
@@ -46,6 +50,9 @@ public class MainView extends VerticalLayout {
             }
         });
 
+        String sessionID = ((VaadinServletRequest) VaadinService.getCurrentRequest()).getHttpServletRequest().getSession().getId();
+
+        System.out.println(sessionID);
 
         ComboBox<String> comboBoxStatus = new ComboBox<>("Статус");
         comboBoxStatus.setItems("NEW", "DONE");
@@ -82,6 +89,16 @@ public class MainView extends VerticalLayout {
 
         button.addClickListener(l -> listComplaint(parameters));
 
+        Button logout = new Button("LOGOUT");
+        logout.addClickListener(l -> {
+            VaadinService.getCurrentRequest().getWrappedSession().invalidate();
+            new SecurityContextLogoutHandler()
+                    .logout(((VaadinServletRequest) VaadinService.getCurrentRequest())
+                            .getHttpServletRequest(), null, null);
+            UI.getCurrent().navigate(LoginView.ROUTE);
+        });
+        add(logout);
+
 
     }
 
@@ -89,7 +106,7 @@ public class MainView extends VerticalLayout {
         CoreService coreService = new CoreService();
         List<Complaint> list = null;
         try {
-            list = toModel(coreService.getComplaints(parameters));
+            list = toModel(coreService. getComplaints(parameters));
         } catch (Exception e) {
             e.printStackTrace();
         }

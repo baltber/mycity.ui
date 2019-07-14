@@ -14,6 +14,7 @@ public class StartView extends VerticalLayout {
         login.addClickListener(e -> UI.getCurrent().navigate(LoginView.class));
 
         Button add = new Button("Подать обращение");
+        add.addClickListener(e -> UI.getCurrent().navigate(AddView.class));
 
         VerticalLayout layout = new VerticalLayout(login, add);
         layout.setHorizontalComponentAlignment(Alignment.CENTER, login);

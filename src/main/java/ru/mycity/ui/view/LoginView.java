@@ -5,45 +5,56 @@ import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import ru.mycity.ui.security.CustomRequestCache;
 
-@Route(value = "login")
+@Route(value = LoginView.ROUTE)
 public class LoginView extends VerticalLayout {
 
-    public LoginView(){
+    public static final String ROUTE = "login";
+
+    @Autowired
+    public LoginView(AuthenticationManager authenticationManager, CustomRequestCache requestCache){
         HorizontalLayout layout = new HorizontalLayout();
-        LoginForm component = new LoginForm();
-        component.addLoginListener(e -> {
-            boolean isAuthenticated = true;
-            if (isAuthenticated) {
-                System.out.println("LOGIN");
+        LoginForm login = new LoginForm();
+        login.addLoginListener(e -> {
+
+            try{
+                final Authentication authentication = authenticationManager
+                        .authenticate(new UsernamePasswordAuthenticationToken(e.getUsername(), e.getPassword())); //
+
+                // if authentication was successful we will update the security context and redirect to the page requested first
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
                 UI.getCurrent().navigate(MainView.class);
-            } else {
-                component.setError(true);
+            } catch (AuthenticationException ex){
+                login.setError(true);
             }
-        });
 
-        setHorizontalComponentAlignment(Alignment.CENTER, layout);
-        layout.add(component);
-
-        add(layout);
-    }
-
-//    private LoginOverlay login = new LoginOverlay(); //
 //
-//    public LoginView() {
-//        login.setAction("login"); //
-//        login.setOpened(true); //
-//        login.setTitle("Spring Secured Vaadin");
-//        login.setDescription("Login Overlay Example");
-//        getElement().appendChild(login.getElement()); //
-//        login.addLoginListener(e -> {
-//            boolean isAuthenticated = false;
+//            boolean isAuthenticated = true;
 //            if (isAuthenticated) {
 //                System.out.println("LOGIN");
 //                UI.getCurrent().navigate(MainView.class);
 //            } else {
 //                login.setError(true);
 //            }
-//        });
-//    }
+        });
+
+        setHorizontalComponentAlignment(Alignment.CENTER, layout);
+        layout.add(login);
+
+        add(layout);
+        String sessionID = ((VaadinServletRequest) VaadinService.getCurrentRequest()).getHttpServletRequest().getSession().getId();
+
+        System.out.println(sessionID);
+    }
+
 }
