@@ -1,15 +1,20 @@
-package ru.mycity.ui.service.rest.dto;
+package ru.mycity.ui.service.rest.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class AuthUserResponseDto {
+public class AuthUserRequestDto {
 
     @JsonProperty("user_name")
     private String userName;
     @JsonProperty("password")
     private String password;
-    @JsonProperty("role")
-    private String role;
+
+    public AuthUserRequestDto(String userName) {
+        this.userName = userName;
+    }
+
+    public AuthUserRequestDto() {
+    }
 
     public String getUserName() {
         return userName;
@@ -27,11 +32,4 @@ public class AuthUserResponseDto {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
 }

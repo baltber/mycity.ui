@@ -4,6 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -17,53 +18,41 @@ import ru.mycity.ui.service.rest.dto.InsertComplaintResultDto;
 @Route(value = "add")
 public class AddView extends VerticalLayout {
 
-@Autowired
-private CoreService coreService;
+    @Autowired
+    private CoreService coreService;
+
+    private TextField textFieldInc;
+    private TextField textFieldAddr;
+    private ComboBox<String> comboBoxCategory;
+    private AddComplaintDto dto;
+    private TextArea textArea;
 
     public AddView() {
-        AddComplaintDto dto = new AddComplaintDto();
+        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        dto = new AddComplaintDto();
+
         VerticalLayout textLayout = new VerticalLayout();
         H2 label = new H2("Подать обращение");
         textLayout.add(label);
         textLayout.setHorizontalComponentAlignment(Alignment.CENTER, label);
         add(textLayout);
-        setHorizontalComponentAlignment(Alignment.CENTER, textLayout);
 
-        TextField textFieldInc = new TextField();
-        textFieldInc.setLabel("Проблема");
-        textFieldInc.setPlaceholder("Проблема");
+        buildInc();
+        buildCategory();
+        buildAddress();
+        buildFullInc();
 
-
-        //List Select
-        ComboBox<String> comboBoxCategory = new ComboBox<>("Категория");
-        comboBoxCategory.setItems("Сантехника", "Электричество");
-
-        comboBoxCategory.addValueChangeListener(event -> {
-            if (event.getSource().isEmpty()) {
-                Notification.show("No browser selected");
-            } else {
-                Notification.show("Выбрана категория: " + event.getValue());
-                dto.setCategory(event.getValue());
-            }
-        });
-
-        TextField textFieldAddr = new TextField();
-        textFieldAddr.setLabel("Адрес");
-        textFieldAddr.setPlaceholder("Адрес");
-        textFieldAddr.addValueChangeListener(e -> {
-            dto.setAddress(e.getValue());
-        });
-
-        TextArea textArea = new TextArea();
-        textArea.setLabel("Опишите подробно проблему");
-        textArea.isRequired();
-        textArea.addValueChangeListener(e -> {
-           dto.setMessage(e.getValue());
-        });
+        HorizontalLayout hl = new HorizontalLayout();
+        hl.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        hl.setHeight("100%");
 
         VerticalLayout verticalLayout = new VerticalLayout(textFieldInc, comboBoxCategory, textFieldAddr, textArea);
+        verticalLayout.setSizeFull();
+        verticalLayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 
-        add(verticalLayout);
+        hl.add(verticalLayout);
+        hl.setSizeFull();
+        add(hl);
 
         Button send = new Button("Отправить");
         send.addClickListener(event -> {
@@ -74,7 +63,48 @@ private CoreService coreService;
         });
 
         add(send);
+    }
 
+    private void buildInc(){
+        textFieldInc = new TextField();
+        textFieldInc.setWidth("30%");
+        textFieldInc.setLabel("Проблема");
+        textFieldInc.setPlaceholder("Проблема");
+        //TODO Добавить в БД поле
+    }
 
+    private void buildAddress(){
+        textFieldAddr = new TextField();
+        textFieldAddr.setWidth("30%");
+        textFieldAddr.setLabel("Адрес");
+        textFieldAddr.setPlaceholder("Адрес");
+        textFieldAddr.addValueChangeListener(e -> {
+            dto.setAddress(e.getValue());
+        });
+    }
+
+    private void buildFullInc(){
+        textArea = new TextArea();
+        textArea.setWidth("30%");
+        textArea.setLabel("Опишите подробно проблему");
+        textArea.setRequiredIndicatorVisible(true);
+        textArea.addValueChangeListener(e -> {
+            dto.setMessage(e.getValue());
+        });
+    }
+
+    private void buildCategory(){
+        comboBoxCategory = new ComboBox<>("Категория");
+        comboBoxCategory.setWidth("30%");
+        comboBoxCategory.setItems("Сантехника", "Электричество");
+
+        comboBoxCategory.addValueChangeListener(event -> {
+            if (event.getSource().isEmpty()) {
+                Notification.show("No browser selected");
+            } else {
+                Notification.show("Выбрана категория: " + event.getValue());
+                dto.setCategory(event.getValue());
+            }
+        });
     }
 }

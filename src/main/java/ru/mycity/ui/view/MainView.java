@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinSession;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import ru.mycity.ui.model.Complaint;
 import ru.mycity.ui.service.rest.CoreService;
@@ -50,20 +51,16 @@ public class MainView extends VerticalLayout {
             }
         });
 
-        String sessionID = ((VaadinServletRequest) VaadinService.getCurrentRequest()).getHttpServletRequest().getSession().getId();
-
-        System.out.println(sessionID);
-
         ComboBox<String> comboBoxStatus = new ComboBox<>("Статус");
         comboBoxStatus.setItems("NEW", "DONE");
 
         comboBoxStatus.addValueChangeListener(event -> {
             if (event.getSource().isEmpty()) {
                 Notification.show("No browser selected");
-                parameters.setCategory(null);
+                parameters.setStatus(null);
             } else {
                 Notification.show("Выбран статус: " + event.getValue());
-                parameters.setCategory(event.getValue());
+                parameters.setStatus(event.getValue());
             }
         });
 
@@ -91,11 +88,12 @@ public class MainView extends VerticalLayout {
 
         Button logout = new Button("LOGOUT");
         logout.addClickListener(l -> {
-            VaadinService.getCurrentRequest().getWrappedSession().invalidate();
+
             new SecurityContextLogoutHandler()
                     .logout(((VaadinServletRequest) VaadinService.getCurrentRequest())
                             .getHttpServletRequest(), null, null);
-            UI.getCurrent().navigate(LoginView.ROUTE);
+            VaadinService.getCurrentRequest().getWrappedSession().invalidate();
+            UI.getCurrent().navigate(LoginView.class);
         });
         add(logout);
 

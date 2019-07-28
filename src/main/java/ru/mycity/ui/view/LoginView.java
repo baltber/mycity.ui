@@ -2,8 +2,10 @@ package ru.mycity.ui.view;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
@@ -22,8 +24,11 @@ public class LoginView extends VerticalLayout {
 
     @Autowired
     public LoginView(AuthenticationManager authenticationManager, CustomRequestCache requestCache){
-        HorizontalLayout layout = new HorizontalLayout();
+        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        setHeight("100%");
+
         LoginForm login = new LoginForm();
+        HorizontalLayout hl = new HorizontalLayout();
         login.addLoginListener(e -> {
 
             try{
@@ -37,16 +42,11 @@ public class LoginView extends VerticalLayout {
             } catch (AuthenticationException ex){
                 login.setError(true);
             }
-
         });
 
-        setHorizontalComponentAlignment(Alignment.CENTER, layout);
-        layout.add(login);
-
-        add(layout);
-        String sessionID = ((VaadinServletRequest) VaadinService.getCurrentRequest()).getHttpServletRequest().getSession().getId();
-
-        System.out.println(sessionID);
+        hl.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        hl.setHeight("100%");
+        hl.add(login);
+        add(hl);
     }
-
 }

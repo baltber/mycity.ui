@@ -7,6 +7,10 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.mycity.ui.service.rest.dto.*;
+import ru.mycity.ui.service.rest.dto.auth.AddUserRequestDto;
+import ru.mycity.ui.service.rest.dto.auth.AddUserResponseDto;
+import ru.mycity.ui.service.rest.dto.auth.AuthUserRequestDto;
+import ru.mycity.ui.service.rest.dto.auth.AuthUserResponseDto;
 import ru.mycity.ui.utils.MarshallerHelper;
 import ru.mycity.ui.view.MainViewParameters;
 
@@ -70,7 +74,28 @@ public class CoreService {
             JsonNode node = new MarshallerHelper<AuthUserRequestDto>().convertToJson(requestDto);
             HttpEntity<String> entity = new HttpEntity<String>(node.toString(), headers);
 
-            return restTemplate.postForEntity("http://localhost:9190/auth/", entity, AuthUserResponseDto.class).getBody();
+            return restTemplate.postForEntity("http://localhost:9190/user/auth/", entity, AuthUserResponseDto.class).getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public AddUserResponseDto addUser(AddUserRequestDto requestDto) {
+        try {
+
+            HttpComponentsClientHttpRequestFactory rf = new HttpComponentsClientHttpRequestFactory();
+            rf.setConnectTimeout(30 * 1000);
+            rf.setConnectionRequestTimeout(30 * 1000);
+            rf.setReadTimeout(60 * 1000);
+            RestTemplate restTemplate = new RestTemplate(rf);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+            JsonNode node = new MarshallerHelper<AddUserRequestDto>().convertToJson(requestDto);
+            HttpEntity<String> entity = new HttpEntity<String>(node.toString(), headers);
+
+            return restTemplate.postForEntity("http://localhost:9190/user/add/", entity, AddUserResponseDto.class).getBody();
         } catch (Exception e) {
             throw e;
         }

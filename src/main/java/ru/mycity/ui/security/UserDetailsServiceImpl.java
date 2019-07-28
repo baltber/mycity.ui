@@ -5,15 +5,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.mycity.ui.service.rest.CoreService;
-import ru.mycity.ui.service.rest.dto.AuthUserRequestDto;
-import ru.mycity.ui.service.rest.dto.AuthUserResponseDto;
+import ru.mycity.ui.service.rest.dto.auth.AuthUserRequestDto;
+import ru.mycity.ui.service.rest.dto.auth.AuthUserResponseDto;
+import ru.mycity.ui.service.rest.dto.auth.UserDto;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service("UserDetailsServiceImpl")
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -25,33 +23,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 private List<AuthUserResponseDto> list;
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-//        AuthUserResponseDto responseDto = coreService.authUser(new AuthUserRequestDto(s));
-//        if (responseDto !=null){
-//            return toUserDetails(responseDto);
-//        }
 
-
-        AuthUserResponseDto responseDto = new AuthUserResponseDto();
-        responseDto.setUserName("admin");
-        responseDto.setPassword(new BCryptPasswordEncoder().encode("admin"));
-        responseDto.setRole("admin");
-        list = new ArrayList<>();
-        list.add(responseDto);
-
-        Optional<AuthUserResponseDto> user = list.stream()
-                .filter(u -> u.getUserName().equals(s))
-                .findFirst();
-
-        if (user.isPresent()){
-            return toUserDetails(user.get());
+        AuthUserResponseDto responseDto = coreService.authUser(new AuthUserRequestDto(s));
+        if (responseDto !=null){
+            return toUserDetails(responseDto);
+        } else {
+            throw new UsernameNotFoundException("User not Found");
         }
-
-        return null;
     }
 
     private UserDetails toUserDetails(AuthUserResponseDto responseDto) {
-        return User.withUsername(responseDto.getUserName())
-                .password(responseDto.getPassword())
-                .roles(responseDto.getRole()).build();
+        UserDto userDto = responseDto.getUserDto();
+        return User.withUsername(userDto.getUserName())
+                .password(userDto.getPassword())
+                .roles(userDto.getRole()).build();
     }
 }
