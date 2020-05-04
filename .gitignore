@@ -26,4 +26,6 @@ hs_err_pid*
 *.iws
 *.iml
 *.ipr
-/target/
+/target/*
+/node_modules/*
+/build/*
