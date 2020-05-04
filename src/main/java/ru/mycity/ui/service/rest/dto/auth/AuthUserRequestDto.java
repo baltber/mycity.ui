@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AuthUserRequestDto {
 
-    @JsonProperty("user_name")
+    @JsonProperty("email")
     private String userName;
     @JsonProperty("password")
     private String password;

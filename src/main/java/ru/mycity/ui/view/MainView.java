@@ -11,11 +11,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import ru.mycity.ui.model.Complaint;
 import ru.mycity.ui.service.rest.CoreService;
 import ru.mycity.ui.service.rest.dto.ComplaintDto;
+import ru.mycity.ui.view.mode.MainViewParameters;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ public class MainView extends VerticalLayout {
 
         VerticalLayout textLayout = new VerticalLayout();
         H2 label = new H2("Обращения граждан");
+
         textLayout.add(label);
         textLayout.setHorizontalComponentAlignment(Alignment.CENTER, label);
         add(textLayout);

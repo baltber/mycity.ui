@@ -26,9 +26,11 @@ public class StartView extends VerticalLayout {
         Button addUser = new Button("Добавить нового пользователя");
         addUser.addClickListener(e -> UI.getCurrent().navigate(AddUserView.class));
 
-        VerticalLayout layout = new VerticalLayout(login, add, addUser);
-        layout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        Button listUser = new Button("Список пользователей");
+        listUser.addClickListener(e -> UI.getCurrent().navigate(UserListView.class));
 
+        VerticalLayout layout = new VerticalLayout(login, add, addUser, listUser);
+        layout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         hl.add(layout);
         add(hl);
     }
