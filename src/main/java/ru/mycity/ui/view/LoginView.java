@@ -2,13 +2,10 @@ package ru.mycity.ui.view;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.LoginForm;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.router.RouterLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import ru.mycity.ui.security.CustomRequestCache;
 
 @Route(value = LoginView.ROUTE)
-public class LoginView extends VerticalLayout {
+public class LoginView extends VerticalLayout  implements RouterLayout {
 
     public static final String ROUTE = "login";
 

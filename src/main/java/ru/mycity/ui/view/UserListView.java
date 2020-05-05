@@ -9,23 +9,16 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import ru.mycity.ui.model.Complaint;
 import ru.mycity.ui.service.rest.CoreService;
-import ru.mycity.ui.service.rest.dto.ComplaintDto;
 import ru.mycity.ui.service.rest.dto.auth.UserDto;
-import ru.mycity.ui.view.mode.MainViewParameters;
 import ru.mycity.ui.view.mode.UserViewParameters;
 
-import javax.jws.soap.SOAPBinding;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Route(value = "user_list", layout = AppView.class)
-@RouteAlias(value = "", layout = AppView.class)
 public class UserListView extends VerticalLayout {
 
     public static final String VIEW_NAME="Список Пользователей";

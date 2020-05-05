@@ -1,6 +1,7 @@
 package ru.mycity.ui.view;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
@@ -16,16 +17,12 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.PWA;
-import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.*;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
-import org.apache.catalina.webresources.FileResource;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import ru.mycity.ui.view.order.OrderView;
 
-import java.io.File;
-import java.io.InputStream;
 
 @Theme(value = Lumo.class)
 @Route(value = AppView.ROUTE)
@@ -37,7 +34,6 @@ public class AppView extends AppLayout  implements RouterLayout{
     public static final String ROUTE = "app";
 
     public AppView() {
-        // Header of the menu (the navbar)
 
         // menu toggle
         final DrawerToggle drawerToggle = new DrawerToggle();
@@ -49,9 +45,6 @@ public class AppView extends AppLayout  implements RouterLayout{
         top.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         top.setClassName("menu-header");
 
-        // Note! Image resource url is resolved here as it is dependent on the
-        // execution mode (development or production) and browser ES level
-        // support
 
         StreamResource res = new StreamResource(
                 "table-logo.png", () -> this.getClass()
@@ -63,14 +56,23 @@ public class AppView extends AppLayout  implements RouterLayout{
         addToNavbar(top);
 
         // Navigation items
-        addToDrawer(createMenuLink(UserListView.class, UserListView.VIEW_NAME,
-                VaadinIcon.EDIT.create()));
-//
-//        addToDrawer(createMenuLink(AboutView.class, AboutView.VIEW_NAME,
-//                VaadinIcon.INFO_CIRCLE.create()));
+        addToDrawer(createMenuLink(OrderView.class, OrderView.VIEW_NAME,
+                VaadinIcon.SHOP.create()));
 
+        Button logoutButton =createMenuButton("Logout", VaadinIcon.SIGN_OUT.create());
+        logoutButton.addClickListener(e ->  {
+            new SecurityContextLogoutHandler()
+                .logout(((VaadinServletRequest) VaadinService.getCurrentRequest())
+                        .getHttpServletRequest(), null, null);
+        VaadinService.getCurrentRequest().getWrappedSession().invalidate();
+        UI.getCurrent().navigate(LoginView.class);
+        });
+        addToDrawer(logoutButton);
 
     }
+
+
+
 
     private RouterLink createMenuLink(Class<? extends Component> viewClass,
                                       String caption, Icon icon) {
@@ -90,4 +92,5 @@ public class AppView extends AppLayout  implements RouterLayout{
         icon.setSize("24px");
         return routerButton;
     }
+
 }
