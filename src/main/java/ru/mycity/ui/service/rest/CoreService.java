@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.mycity.ui.service.rest.dto.*;
 import ru.mycity.ui.service.rest.dto.auth.*;
+import ru.mycity.ui.service.rest.dto.order.FullOrderDto;
 import ru.mycity.ui.utils.MarshallerHelper;
 import ru.mycity.ui.view.mode.MainViewParameters;
 
@@ -122,6 +123,34 @@ public class CoreService {
             throw e;
         }
     }
+
+
+    public FullOrderDto getOrderList(String state, int limit, int offset) {
+        try {
+            HttpComponentsClientHttpRequestFactory rf = new HttpComponentsClientHttpRequestFactory();
+            rf.setConnectTimeout(30 * 1000);
+            rf.setConnectionRequestTimeout(30 * 1000);
+            rf.setReadTimeout(60 * 1000);
+            RestTemplate restTemplate = new RestTemplate(rf);
+
+            ResponseEntity<FullOrderDto> responseEntity =
+                    restTemplate.getForEntity( "http://localhost:9190/api/order/" + buildOrderUrl(state, limit, offset),
+                            FullOrderDto.class);
+            return responseEntity.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private String buildOrderUrl(String state, int limit, int offset){
+        StringBuilder sb = new StringBuilder("?");
+        sb.append("state=" + state);
+        sb.append("&size=" + limit);
+        sb.append("&start=" + offset);
+        sb.append("&guid=" + "454e3036-3a47-41fe-b358-0ff1af073c5b");
+        return sb.toString();
+    }
+
 
     private String buildUrl(MainViewParameters parameters){
         StringBuilder sb = new StringBuilder("?");
