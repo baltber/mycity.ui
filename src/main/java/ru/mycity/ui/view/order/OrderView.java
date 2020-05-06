@@ -26,7 +26,7 @@ public class OrderView extends HorizontalLayout {
     public static final String VIEW_NAME="Список заказов";
 
     private OrderViewLogic orderViewLogic = new OrderViewLogic(this);
-    private final PaginatedGrid<OrderRequestDto> grid;
+    private PaginatedGrid<OrderRequestDto> grid;
     private OrderForm form;
 
 
@@ -38,6 +38,21 @@ public class OrderView extends HorizontalLayout {
         form.setEnabled(false);
 
         VerticalLayout tabAndGridLayout = new VerticalLayout();
+
+        HorizontalLayout topBar = createTopBar();
+        VerticalLayout lGrid = createGrid();
+        tabAndGridLayout.add(topBar);
+        tabAndGridLayout.add(lGrid);
+        tabAndGridLayout.setFlexGrow(1, lGrid);
+        tabAndGridLayout.setFlexGrow(0, topBar);
+        tabAndGridLayout.expand(lGrid);
+        tabAndGridLayout.setSizeFull();
+        add(tabAndGridLayout);
+        add(form);
+    }
+
+    public VerticalLayout createGrid() {
+        final VerticalLayout gridLayout = new VerticalLayout();
         grid = new PaginatedGrid<>();
         grid.addColumn(OrderRequestDto::getName).setHeader("name");
         grid.addColumn(OrderRequestDto::getAddress).setHeader("address");
@@ -47,19 +62,14 @@ public class OrderView extends HorizontalLayout {
         grid.setDataProvider(createDataProvider("process"));
         grid.asSingleSelect().addValueChangeListener(
                 event -> editProduct(event.getValue()));
-        grid.setPageSize(16);
+        grid.setPageSize(15);
         grid.setPaginatorSize(5);
-
-        HorizontalLayout topBar = createTopBar();
-        tabAndGridLayout.add(topBar);
-        tabAndGridLayout.add(grid);
-        tabAndGridLayout.setFlexGrow(1, grid);
-        tabAndGridLayout.setFlexGrow(0, topBar);
-        tabAndGridLayout.setSizeFull();
-        tabAndGridLayout.expand(grid);
-        add(tabAndGridLayout);
-        add(form);
+        gridLayout.setWidth("100%");
+        gridLayout.add(grid);
+        gridLayout.expand(grid);
+        return gridLayout;
     }
+
 
     public HorizontalLayout createTopBar() {
         Tabs tabs = initTabs();

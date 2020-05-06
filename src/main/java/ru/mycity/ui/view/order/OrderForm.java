@@ -126,9 +126,13 @@ public class OrderForm extends Div {
         order = new Grid<>(OrderDto.class);
         order.setWidth("100%");
         order.getColumnByKey("name").setHeader("Наименование блюда").setSortable(true).setAutoWidth(true);
-        order.getColumnByKey("amount").setHeader("Стоимость").setSortable(true).setAutoWidth(true);
+        order.getColumnByKey("price").setHeader("Стоимость").setSortable(true).setAutoWidth(true);
         order.getColumnByKey("quantity").setHeader("Колличество").setSortable(true).setAutoWidth(true);
-        order.getColumnByKey("price").setHeader("Цена").setSortable(true).setAutoWidth(true);
+        order.getColumnByKey("amount").setHeader("Цена").setSortable(true).setAutoWidth(true);
+        order.setColumnOrder(order.getColumnByKey("name"),
+                order.getColumnByKey("price"),
+                order.getColumnByKey("quantity"),
+                order.getColumnByKey("amount"));
         content.add(order);
         save = new Button("Save");
         save.setWidth("100%");
