@@ -34,7 +34,7 @@ private List<AuthUserResponseDto> list;
 
     private UserDetails toUserDetails(AuthUserResponseDto responseDto) {
         UserDto userDto = responseDto.getUserDto();
-        return User.withUsername(userDto.getUserName())
+        return User.withUsername(userDto.getEmail())
                 .password(userDto.getPassword())
                 .roles(userDto.getRole()).build();
     }

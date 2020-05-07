@@ -143,7 +143,7 @@ public class OrderForm extends Div {
         discard = new Button("Discard changes");
         discard.setWidth("100%");
 
-        cancel = new Button("Cancel");
+        cancel = new Button("Cancel (ESC)");
         cancel.setWidth("100%");
 
         cancel.addClickShortcut(Key.ESCAPE);

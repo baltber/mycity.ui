@@ -1,6 +1,7 @@
 package ru.mycity.ui.view.order;
 
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -54,12 +55,12 @@ public class OrderView extends HorizontalLayout {
     public VerticalLayout createGrid() {
         final VerticalLayout gridLayout = new VerticalLayout();
         grid = new PaginatedGrid<>();
-        grid.addColumn(OrderRequestDto::getName).setHeader("name");
-        grid.addColumn(OrderRequestDto::getAddress).setHeader("address");
-        grid.addColumn(OrderRequestDto::getEmail).setHeader("email");
-        grid.addColumn(OrderRequestDto::getPhone).setHeader("phone");
+        grid.addColumn(OrderRequestDto::getName).setHeader("name").setHeader("Имя клиента").setSortable(true);
+        grid.addColumn(OrderRequestDto::getAddress).setHeader("address").setHeader("Адрес").setSortable(true);
+        grid.addColumn(OrderRequestDto::getEmail).setHeader("email").setHeader("E-Mail").setSortable(true);
+        grid.addColumn(OrderRequestDto::getPhone).setHeader("phone").setHeader("Телефон").setSortable(true);
+        grid.setDataProvider(createDataProvider("new"));
 
-        grid.setDataProvider(createDataProvider("process"));
         grid.asSingleSelect().addValueChangeListener(
                 event -> editProduct(event.getValue()));
         grid.setPageSize(15);
@@ -83,12 +84,25 @@ public class OrderView extends HorizontalLayout {
 
     private Tabs initTabs() {
         Tabs tabs = new Tabs();
-        tabs.add(new Tab(new HorizontalLayout(VaadinIcon.EDIT.create(), new Text("Новые"))));
-        tabs.add(new Tab(new HorizontalLayout(VaadinIcon.PROGRESSBAR.create(), new Text("В процессе"))));
-        tabs.add(new Tab(new HorizontalLayout(VaadinIcon.TRUCK.create(), new Text("В доставке"))));
+        Tab newTab =new Tab(new HorizontalLayout(VaadinIcon.EDIT.create(), new Label("Новые")));
+        Tab procTab =new Tab(new HorizontalLayout(VaadinIcon.PROGRESSBAR.create(), new Label("В процессе")));
+        Tab delTab =new Tab(new HorizontalLayout(VaadinIcon.TRUCK.create(), new Label("В доставке")));
+        newTab.setId("new");
+        procTab.setId("process");
+        delTab.setId("delivery");
+        tabs.add(newTab);
+        tabs.add(procTab);
+        tabs.add(delTab);
+
+        tabs.setSelectedTab(newTab);
+        tabs.addSelectedChangeListener(e->{
+            grid.setDataProvider(createDataProvider(e.getSelectedTab().getId().orElse("new")));
+        });
         tabs.setSizeFull();
        return tabs;
     }
+
+
 
 
     public void editProduct(OrderRequestDto dto) {

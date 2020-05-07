@@ -25,7 +25,10 @@ public class AddUserView extends VerticalLayout {
     private CoreService coreService;
 
     private TextField textFieldName;
+    private TextField textFieldLastName;
+    private TextField textFieldEmail;
     private TextField textFieldPass;
+    private TextField textFieldOrgGuid;
     private ComboBox<String> comboBoxRole;
     private UserDto dto;
 
@@ -41,14 +44,18 @@ public class AddUserView extends VerticalLayout {
         add(textLayout);
 
         buildUserName();
+        buildLastName();
+        buildEmail();
         buildPassword();
+        buildOrganisationGuid();
         buildRole();
 
         HorizontalLayout hl = new HorizontalLayout();
         hl.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         hl.setHeight("100%");
 
-        VerticalLayout verticalLayout = new VerticalLayout(textFieldName, textFieldPass, comboBoxRole);
+        VerticalLayout verticalLayout = new VerticalLayout(textFieldName, textFieldLastName, textFieldEmail,
+                textFieldPass, textFieldOrgGuid, comboBoxRole);
         verticalLayout.setSizeFull();
         verticalLayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 
@@ -62,6 +69,7 @@ public class AddUserView extends VerticalLayout {
             AddUserResponseDto resultDto = coreService.addUser(requestDto);
             if(resultDto!= null){
                 Notification.show(String.valueOf(resultDto.getResultDto().getMessage()));
+
             }
         });
 
@@ -74,7 +82,27 @@ public class AddUserView extends VerticalLayout {
         textFieldName.setLabel("Имя пользователя");
         textFieldName.setPlaceholder("Имя пользователя");
         textFieldName.addValueChangeListener(e -> {
-            dto.setUserName(e.getValue());
+            dto.setFirstName(e.getValue());
+        });
+    }
+
+    private void buildLastName(){
+        textFieldLastName = new TextField();
+        textFieldLastName.setWidth("30%");
+        textFieldLastName.setLabel("Фамилия");
+        textFieldLastName.setPlaceholder("Фамилия");
+        textFieldLastName.addValueChangeListener(e -> {
+            dto.setLastName(e.getValue());
+        });
+    }
+
+    private void buildEmail(){
+        textFieldEmail = new TextField();
+        textFieldEmail.setWidth("30%");
+        textFieldEmail.setLabel("E-Mail");
+        textFieldEmail.setPlaceholder("E-Mail");
+        textFieldEmail.addValueChangeListener(e -> {
+            dto.setEmail(e.getValue());
         });
     }
 
@@ -85,6 +113,16 @@ public class AddUserView extends VerticalLayout {
         textFieldPass.setPlaceholder("Пароль");
         textFieldPass.addValueChangeListener(e -> {
             dto.setPassword(new BCryptPasswordEncoder().encode(e.getValue()));
+        });
+    }
+
+    private void buildOrganisationGuid(){
+        textFieldOrgGuid = new TextField();
+        textFieldOrgGuid.setWidth("30%");
+        textFieldOrgGuid.setLabel("ID организации");
+        textFieldOrgGuid.setPlaceholder("ID организации");
+        textFieldOrgGuid.addValueChangeListener(e -> {
+            dto.setOrganisationGuid(e.getValue());
         });
     }
 

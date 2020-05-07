@@ -93,7 +93,7 @@ public class CoreService {
             JsonNode node = new MarshallerHelper<AddUserRequestDto>().convertToJson(requestDto);
             HttpEntity<String> entity = new HttpEntity<String>(node.toString(), headers);
 
-            return restTemplate.postForEntity("http://localhost:9190/user/add/", entity, AddUserResponseDto.class).getBody();
+            return restTemplate.postForEntity("http://localhost:9190/api/user/admin/add/", entity, AddUserResponseDto.class).getBody();
         } catch (Exception e) {
             throw e;
         }
