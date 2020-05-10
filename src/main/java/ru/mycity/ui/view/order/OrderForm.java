@@ -1,32 +1,34 @@
 package ru.mycity.ui.view.order;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyModifier;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.flow.data.converter.StringToBigDecimalConverter;
-import com.vaadin.flow.data.converter.StringToIntegerConverter;
+import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import ru.mycity.ui.service.rest.dto.auth.UserDto;
+import com.vaadin.flow.function.SerializableFunction;
 import ru.mycity.ui.service.rest.dto.order.OrderDto;
+import ru.mycity.ui.service.rest.dto.order.OrderList;
 import ru.mycity.ui.service.rest.dto.order.OrderRequestDto;
+import ru.mycity.ui.view.common.InfoLayout;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
+import java.util.stream.Stream;
 
 /**
  * A form for editing a single product.
@@ -44,47 +46,18 @@ public class OrderForm extends Div {
     private Button cancel;
     private final Button delete;
     private Binder<OrderRequestDto> binder;
-    OrderViewLogic viewLogic;
+    private Binder<OrderList> listBinder;
+    private OrderViewLogic viewLogic;
+    private final InfoLayout delivery;
+    private final InfoLayout deliveryPrice;
+    private final InfoLayout totalPrice;
+    private VerticalLayout items;
+    private HorizontalLayout comboLayout;
+    private OrderRequestDto orderRequestDto;
+    private String currentState;
 
-    private static class PriceConverter extends StringToBigDecimalConverter {
+    private ComboBox<String> comboBoxState;
 
-        public PriceConverter() {
-            super(BigDecimal.ZERO, "Cannot convert value to a number.");
-        }
-
-        @Override
-        protected NumberFormat getFormat(Locale locale) {
-            // Always display currency with two decimals
-            final NumberFormat format = super.getFormat(locale);
-            if (format instanceof DecimalFormat) {
-                format.setMaximumFractionDigits(2);
-                format.setMinimumFractionDigits(2);
-            }
-            return format;
-        }
-    }
-
-    private static class StockCountConverter extends StringToIntegerConverter {
-
-        public StockCountConverter() {
-            super(0, "Could not convert value to " + Integer.class.getName()
-                    + ".");
-        }
-
-        @Override
-        protected NumberFormat getFormat(Locale locale) {
-            // Do not use a thousands separator, as HTML5 input type
-            // number expects a fixed wire/DOM number format regardless
-            // of how the browser presents it to the user (which could
-            // depend on the browser locale).
-            final DecimalFormat format = new DecimalFormat();
-            format.setMaximumFractionDigits(0);
-            format.setDecimalSeparatorAlwaysShown(false);
-            format.setParseIntegerOnly(true);
-            format.setGroupingUsed(false);
-            return format;
-        }
-    }
 
     public OrderForm(OrderViewLogic viewLogic) {
         this.viewLogic = viewLogic;
@@ -92,6 +65,7 @@ public class OrderForm extends Div {
         setWidth("40%");
 
         content = new VerticalLayout();
+        comboLayout = new HorizontalLayout();
         content.setSizeUndefined();
         content.addClassName("product-form-content");
         add(content);
@@ -121,10 +95,13 @@ public class OrderForm extends Div {
         address.setValueChangeMode(ValueChangeMode.EAGER);
         content.add(address);
 
-
+        buildState("new");
+        comboLayout.add(comboBoxState);
+        content.add(comboLayout);
 
         order = new Grid<>(OrderDto.class);
         order.setWidth("100%");
+        order.setHeightByRows(true);
         order.getColumnByKey("name").setHeader("Наименование блюда").setSortable(true).setAutoWidth(true);
         order.getColumnByKey("price").setHeader("Стоимость").setSortable(true).setAutoWidth(true);
         order.getColumnByKey("quantity").setHeader("Колличество").setSortable(true).setAutoWidth(true);
@@ -134,6 +111,22 @@ public class OrderForm extends Div {
                 order.getColumnByKey("quantity"),
                 order.getColumnByKey("amount"));
         content.add(order);
+
+        delivery = new InfoLayout("Доставка", "");
+        delivery.setWidth("100%");
+
+        deliveryPrice = new InfoLayout("Стоимость доставки", "");
+        deliveryPrice.setWidth("100%");
+
+        totalPrice = new InfoLayout("Итого", "");
+        totalPrice.setWidth("100%");
+        items=new VerticalLayout(delivery, deliveryPrice, totalPrice);
+        items.setWidth("100%");
+        items.setSizeFull();
+        content.add(items);
+
+
+
         save = new Button("Save");
         save.setWidth("100%");
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -142,6 +135,8 @@ public class OrderForm extends Div {
 
         discard = new Button("Discard changes");
         discard.setWidth("100%");
+        discard.addClickListener(
+                event -> viewLogic.editProduct(orderRequestDto, currentState));
 
         cancel = new Button("Cancel (ESC)");
         cancel.setWidth("100%");
@@ -161,7 +156,9 @@ public class OrderForm extends Div {
         content.add(save, discard, delete, cancel);
     }
 
-    public void bind(OrderRequestDto dto){
+    public void bind(OrderRequestDto dto, String state){
+        this.orderRequestDto=dto;
+        this.currentState=state;
         binder = new Binder<>(OrderRequestDto.class);
         binder.bind(name, OrderRequestDto::getName,
                 OrderRequestDto::setName);
@@ -170,10 +167,17 @@ public class OrderForm extends Div {
         binder.bind(phone, OrderRequestDto::getPhone,
                 OrderRequestDto::setPhone);
 
+        delivery.setSecondary(dto.getOrderList().getDelivery());
+        deliveryPrice.setSecondary(String.valueOf(dto.getOrderList().getDeliveryPrice()));
+        totalPrice.setSecondary(String.valueOf(dto.getOrderList().getTotalPrice()));
+
         order.setDataProvider(createDataProvider(dto));
+
+
 
         binder.readBean(dto);
     }
+
 
     private DataProvider<OrderDto, Void> createDataProvider(OrderRequestDto requestDto){
 
@@ -192,6 +196,47 @@ public class OrderForm extends Div {
                 // Second callback fetches the number of items
                 // for a query
                 query -> requestDto != null? requestDto.getOrderList().getOrderDtoList().size() : 0);
+    }
+
+
+    public void buildState(String currentState){
+        comboLayout.setWidth("100%");
+        if(comboBoxState != null){
+            comboLayout.remove(comboBoxState);
+        }
+        comboBoxState = new ComboBox<>("Статус");
+        comboBoxState.setWidth("30%");
+        comboBoxState.setDataProvider(createListDataProvider(currentState));
+        comboBoxState.setValue(currentState);
+
+        comboBoxState.addValueChangeListener(event -> {
+            if (event.getSource().isEmpty()) {
+                Notification.show("No browser selected");
+            } else {
+                Notification.show("Выбрана роль: " + event.getValue());
+            }
+        });
+
+        comboLayout.add(comboBoxState);
+    }
+
+    private ListDataProvider<String> createListDataProvider(String state){
+        return DataProvider.fromStream(createStateListStream(state));
+    }
+
+    private Stream<String> createStateListStream(String currentState){
+        switch (currentState){
+            case "new":{
+                return Stream.of("new", "process");
+            }
+            case "process":{
+                return Stream.of("process", "delivery");
+            }
+            case "delivery":{
+                return Stream.of("delivery", "done");
+            }
+            default: return Stream.of("delivery", "done");
+        }
     }
 
 }

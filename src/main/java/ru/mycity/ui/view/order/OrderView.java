@@ -1,6 +1,5 @@
 package ru.mycity.ui.view.order;
 
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -9,8 +8,6 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.vaadin.klaudeta.PaginatedGrid;
 import ru.mycity.ui.service.OrderService;
 import ru.mycity.ui.service.rest.dto.order.OrderRequestDto;
@@ -30,8 +27,10 @@ public class OrderView extends HorizontalLayout {
     private PaginatedGrid<OrderRequestDto> grid;
     private OrderForm form;
 
+    private String state;
 
     public OrderView() {
+        state="new";
         orderService = new OrderService();
         setSizeFull();
         form=new OrderForm(orderViewLogic);
@@ -62,7 +61,7 @@ public class OrderView extends HorizontalLayout {
         grid.setDataProvider(createDataProvider("new"));
 
         grid.asSingleSelect().addValueChangeListener(
-                event -> editProduct(event.getValue()));
+                event -> editProduct(event.getValue(), this.state));
         grid.setPageSize(15);
         grid.setPaginatorSize(5);
         gridLayout.setWidth("100%");
@@ -96,7 +95,9 @@ public class OrderView extends HorizontalLayout {
 
         tabs.setSelectedTab(newTab);
         tabs.addSelectedChangeListener(e->{
-            grid.setDataProvider(createDataProvider(e.getSelectedTab().getId().orElse("new")));
+            this.state=e.getSelectedTab().getId().orElse("new");
+            grid.setDataProvider(createDataProvider(this.state));
+
         });
         tabs.setSizeFull();
        return tabs;
@@ -105,9 +106,14 @@ public class OrderView extends HorizontalLayout {
 
 
 
-    public void editProduct(OrderRequestDto dto) {
+    public void editProduct(OrderRequestDto dto, String state) {
         showForm(dto != null);
-        form.bind(dto);
+        if(dto != null){
+            form.bind(dto, state);
+            form.buildState(state);
+        }
+
+
     }
 
     /**
