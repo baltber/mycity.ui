@@ -22,6 +22,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import ru.mycity.ui.view.order.OrderView;
+import ru.mycity.ui.view.stat.StatView;
 
 
 @Theme(value = Lumo.class)
@@ -47,9 +48,10 @@ public class AppView extends AppLayout  implements RouterLayout{
 
 
         StreamResource res = new StreamResource(
-                "table-logo.png", () -> this.getClass()
+                "delivery.png", () -> this.getClass()
                 .getClassLoader().getResourceAsStream("img/table-logo.png"));
         Image imageFromStream = new Image( res,"logo image");
+
         final Label title = new Label("Доставка");
         top.add(imageFromStream, title);
         top.add(title);
@@ -58,6 +60,9 @@ public class AppView extends AppLayout  implements RouterLayout{
         // Navigation items
         addToDrawer(createMenuLink(OrderView.class, OrderView.VIEW_NAME,
                 VaadinIcon.SHOP.create()));
+
+        addToDrawer(createMenuLink(StatView.class, StatView.VIEW_NAME,
+            VaadinIcon.STAR.create()));
 
         Button logoutButton =createMenuButton("Logout", VaadinIcon.SIGN_OUT.create());
         logoutButton.addClickListener(e ->  {
